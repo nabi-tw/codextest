@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>50音れんしゅうアプリ</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <h1>50音れんしゅうアプリ</h1>
+    <p class="lead">ひらがな・カタカナをクイズ形式で練習しよう。</p>
+
+    <section class="controls">
+      <label>
+        文字の種類
+        <select id="scriptSelect">
+          <option value="hiragana">ひらがな</option>
+          <option value="katakana">カタカナ</option>
+          <option value="mixed">ミックス</option>
+        </select>
+      </label>
+
+      <label>
+        問題数
+        <select id="questionCount">
+          <option>5</option>
+          <option selected>10</option>
+          <option>20</option>
+        </select>
+      </label>
+
+      <button id="startBtn">スタート</button>
+    </section>
+
+    <section id="quizCard" class="quiz-card hidden">
+      <div class="progress" id="progress"></div>
+      <div class="kana" id="kana"></div>
+      <form id="answerForm">
+        <input id="answerInput" type="text" autocomplete="off" placeholder="ローマ字で入力（例: ka）" />
+        <button type="submit">こたえる</button>
+      </form>
+      <p id="feedback" class="feedback"></p>
+    </section>
+
+    <section id="result" class="result hidden"></section>
+
+    <section class="download-wrap">
+      <h2>ファイルをダウンロード</h2>
+      <p>このアプリの3ファイルを個別にダウンロードできます。</p>
+      <ul class="download-links">
+        <li><a href="index.html" download>index.html をダウンロード</a></li>
+        <li><a href="styles.css" download>styles.css をダウンロード</a></li>
+        <li><a href="app.js" download>app.js をダウンロード</a></li>
+      </ul>
+    </section>
+
+    <section class="table-wrap">
+      <h2>50音ひょう</h2>
+      <div class="tables">
+        <div>
+          <h3>ひらがな</h3>
+          <table id="hiraganaTable"></table>
+        </div>
+        <div>
+          <h3>カタカナ</h3>
+          <table id="katakanaTable"></table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
