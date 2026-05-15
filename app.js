@@ -38,21 +38,6 @@ const katakana = {
   wa: "ワ", wo: "ヲ", n: "ン"
 };
 
-const scriptSelect = document.getElementById("scriptSelect");
-const questionCount = document.getElementById("questionCount");
-const startBtn = document.getElementById("startBtn");
-const quizCard = document.getElementById("quizCard");
-const progress = document.getElementById("progress");
-const kana = document.getElementById("kana");
-const answerForm = document.getElementById("answerForm");
-const answerInput = document.getElementById("answerInput");
-const feedback = document.getElementById("feedback");
-const result = document.getElementById("result");
-
-let quiz = [];
-let current = 0;
-let score = 0;
-
 const entries = Object.keys(hiragana).map((roma) => ({
   roma,
   hiragana: hiragana[roma],
@@ -61,12 +46,14 @@ const entries = Object.keys(hiragana).map((roma) => ({
 
 function buildTable(tableId, data) {
   const table = document.getElementById(tableId);
+  if (!table) return;
+
   table.innerHTML = "";
-  kanaRows.forEach((row, idx) => {
+  kanaRows.forEach((row) => {
     const tr = document.createElement("tr");
     row.forEach((roma) => {
-      const cell = document.createElement(idx === 0 ? "th" : "td");
-      cell.textContent = roma ? `${data[roma]}\n(${roma})` : "";
+      const cell = document.createElement("td");
+      cell.innerHTML = roma ? `${data[roma]}<br><small>(${roma})</small>` : "";
       tr.appendChild(cell);
     });
     table.appendChild(tr);
@@ -77,65 +64,87 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function startQuiz() {
-  const mode = scriptSelect.value;
-  const count = Number(questionCount.value);
+document.addEventListener("DOMContentLoaded", () => {
+  const scriptSelect = document.getElementById("scriptSelect");
+  const questionCount = document.getElementById("questionCount");
+  const startBtn = document.getElementById("startBtn");
+  const quizCard = document.getElementById("quizCard");
+  const progress = document.getElementById("progress");
+  const kana = document.getElementById("kana");
+  const answerForm = document.getElementById("answerForm");
+  const answerInput = document.getElementById("answerInput");
+  const feedback = document.getElementById("feedback");
+  const result = document.getElementById("result");
 
-  let pool = entries.flatMap((item) => {
-    if (mode === "hiragana") return [{ char: item.hiragana, roma: item.roma }];
-    if (mode === "katakana") return [{ char: item.katakana, roma: item.roma }];
-    return [
-      { char: item.hiragana, roma: item.roma },
-      { char: item.katakana, roma: item.roma }
-    ];
-  });
-
-  quiz = shuffle(pool).slice(0, count);
-  current = 0;
-  score = 0;
-  result.classList.add("hidden");
-  quizCard.classList.remove("hidden");
-  feedback.textContent = "";
-  nextQuestion();
-}
-
-function nextQuestion() {
-  if (current >= quiz.length) {
-    finishQuiz();
+  if (!scriptSelect || !questionCount || !startBtn || !quizCard || !progress || !kana || !answerForm || !answerInput || !feedback || !result) {
+    console.error("初期化エラー: 必要な要素が見つかりません。index.html を確認してください。");
     return;
   }
-  progress.textContent = `問題 ${current + 1} / ${quiz.length}`;
-  kana.textContent = quiz[current].char;
-  answerInput.value = "";
-  answerInput.focus();
-}
 
-function finishQuiz() {
-  quizCard.classList.add("hidden");
-  result.classList.remove("hidden");
-  result.innerHTML = `<h2>けっか</h2><p>${quiz.length}問中 ${score}問せいかい！</p>`;
-}
+  let quiz = [];
+  let current = 0;
+  let score = 0;
 
-startBtn.addEventListener("click", startQuiz);
-answerForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (!quiz.length) return;
+  function startQuiz() {
+    const mode = scriptSelect.value;
+    const count = Number(questionCount.value);
 
-  const input = answerInput.value.trim().toLowerCase();
-  const correct = quiz[current].roma;
+    const pool = entries.flatMap((item) => {
+      if (mode === "hiragana") return [{ char: item.hiragana, roma: item.roma }];
+      if (mode === "katakana") return [{ char: item.katakana, roma: item.roma }];
+      return [
+        { char: item.hiragana, roma: item.roma },
+        { char: item.katakana, roma: item.roma }
+      ];
+    });
 
-  if (input === correct) {
-    score += 1;
-    feedback.textContent = "✅ せいかい！";
-    feedback.style.color = "#0a7a32";
-  } else {
-    feedback.textContent = `❌ ざんねん。正解は ${correct}`;
-    feedback.style.color = "#b00020";
+    quiz = shuffle(pool).slice(0, count);
+    current = 0;
+    score = 0;
+    result.classList.add("hidden");
+    quizCard.classList.remove("hidden");
+    feedback.textContent = "";
+    nextQuestion();
   }
 
-  current += 1;
-  setTimeout(nextQuestion, 500);
-});
+  function nextQuestion() {
+    if (current >= quiz.length) {
+      finishQuiz();
+      return;
+    }
+    progress.textContent = `問題 ${current + 1} / ${quiz.length}`;
+    kana.textContent = quiz[current].char;
+    answerInput.value = "";
+    answerInput.focus();
+  }
 
-buildTable("hiraganaTable", hiragana);
-buildTable("katakanaTable", katakana);
+  function finishQuiz() {
+    quizCard.classList.add("hidden");
+    result.classList.remove("hidden");
+    result.innerHTML = `<h2>けっか</h2><p>${quiz.length}問中 ${score}問せいかい！</p>`;
+  }
+
+  startBtn.addEventListener("click", startQuiz);
+  answerForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!quiz.length) return;
+
+    const input = answerInput.value.trim().toLowerCase();
+    const correct = quiz[current].roma;
+
+    if (input === correct) {
+      score += 1;
+      feedback.textContent = "✅ せいかい！";
+      feedback.style.color = "#0a7a32";
+    } else {
+      feedback.textContent = `❌ ざんねん。正解は ${correct}`;
+      feedback.style.color = "#b00020";
+    }
+
+    current += 1;
+    setTimeout(nextQuestion, 500);
+  });
+
+  buildTable("hiraganaTable", hiragana);
+  buildTable("katakanaTable", katakana);
+});
